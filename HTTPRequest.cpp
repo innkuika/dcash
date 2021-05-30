@@ -37,10 +37,6 @@ map<string, string> HTTPRequest::getParams() {
 }
 
 WwwFormEncodedDict HTTPRequest::formEncodedBody() {
-    cout << "body " << endl;
-    cout << m_http->getBody() << endl;
-    cout << "mhttp " << endl;
-    cout << m_http << endl;
     WwwFormEncodedDict dict(m_http->getBody());
     return dict;
 }

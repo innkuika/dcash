@@ -78,7 +78,7 @@ void makeHTTPRequest(string http_method, string url, WwwFormEncodedDict args) {
 
 void handle_auth(int argc, char *argv[]) {
     cout << "begin handling auth..." << endl;
-    if (argc != 4) {
+    if (argc != 3 && argc != 4) {
         // check if number of arguments is correct
         write_error_message();
         return;
@@ -87,7 +87,9 @@ void handle_auth(int argc, char *argv[]) {
     WwwFormEncodedDict args;
     args.set("username", argv[1]);
     args.set("password", argv[2]);
-    args.set("email", argv[3]);
+    if (argc == 4) {
+        args.set("email", argv[3]);
+    }
 
     makeHTTPRequest("POST", "/auth-tokens", args);
 }

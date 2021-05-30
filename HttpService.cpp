@@ -12,9 +12,18 @@ HttpService::HttpService(string pathPrefix) {
   this->m_pathPrefix = pathPrefix;
 }
 
-User *HttpService::getAuthenticatedUser(HTTPRequest *request)  {
-  // TODO: implement this function
-  return NULL;
+User *HttpService::getAuthenticatedUser(HTTPRequest *request) {
+    try {
+        request->getHeader("x-auth-token");
+    } catch (...) {
+        throw ClientError::unauthorized();
+    }
+
+    string authToken = request->getHeader("x-auth-token");
+    if (m_db->auth_tokens.count(authToken) == 0) {
+        throw ClientError::notFound();
+    }
+    return m_db->auth_tokens[authToken];
 }
 
 string HttpService::pathPrefix() {
