@@ -1,0 +1,6 @@
+*.d
+*.o
+config.json
+gunrock_web
+.idea
+.DS_Store

@@ -27,6 +27,18 @@ AuthService::AuthService() : HttpService("/auth-tokens") {
 }
 
 void AuthService::post(HTTPRequest *request, HTTPResponse *response) {
+    cout << "in auth service post" << endl;
+    string args = request->formEncodedBody().get("username");
+    cout << "username " << endl;
+    cout << request->getBody() << endl;
+
+    // TODO: check if user is in db
+        // TODO: in db: check if password match
+        // TODO: not in db: create new user
+
+
+
+
 
 }
 
