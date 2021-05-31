@@ -67,6 +67,7 @@ void TransferService::post(HTTPRequest *request, HTTPResponse *response) {
         from_user = getAuthenticatedUser(request);
     } catch (const ClientError &error) {
         response->setStatus(error.status_code);
+        return;
     }
 
     WwwFormEncodedDict args = request->formEncodedBody();

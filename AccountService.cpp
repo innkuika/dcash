@@ -53,6 +53,7 @@ void AccountService::get(HTTPRequest *request, HTTPResponse *response) {
         user = getAuthenticatedUser(request);
     } catch (const ClientError &error) {
         response->setStatus(error.status_code);
+        return;
     }
 
     // check if userid is in body
@@ -85,6 +86,7 @@ void AccountService::put(HTTPRequest *request, HTTPResponse *response) {
         user = getAuthenticatedUser(request);
     } catch (const ClientError &error) {
         response->setStatus(error.status_code);
+        return;
     }
 
     // check if userid is in body
