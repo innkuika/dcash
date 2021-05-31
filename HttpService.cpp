@@ -21,7 +21,7 @@ User *HttpService::getAuthenticatedUser(HTTPRequest *request) {
 
     string authToken = request->getHeader("x-auth-token");
     if (m_db->auth_tokens.count(authToken) == 0) {
-        throw ClientError::notFound();
+        throw ClientError::unauthorized();
     }
     return m_db->auth_tokens[authToken];
 }

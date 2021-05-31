@@ -4,6 +4,7 @@
 #include <string>
 #include <cstring>
 #include <random>
+#include <iostream>
 
 #include "AuthService.h"
 #include "ClientError.h"
@@ -15,8 +16,7 @@
 using namespace std;
 using namespace rapidjson;
 
-std::string random_string(std::size_t length)
-{
+std::string random_string(std::size_t length) {
     const std::string CHARACTERS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
 
     std::random_device random_device;
@@ -25,8 +25,7 @@ std::string random_string(std::size_t length)
 
     std::string random_string;
 
-    for (std::size_t i = 0; i < length; ++i)
-    {
+    for (std::size_t i = 0; i < length; ++i) {
         random_string += CHARACTERS[distribution(generator)];
     }
 
@@ -48,7 +47,7 @@ AuthService::AuthService() : HttpService("/auth-tokens") {
 void respond_username_and_auth_token(string user_id, string authToken, int statusCode, HTTPResponse *response) {
     // use rapidjson to create a return object
     Document document;
-    Document::AllocatorType& a = document.GetAllocator();
+    Document::AllocatorType &a = document.GetAllocator();
     Value o;
     o.SetObject();
 
@@ -82,7 +81,7 @@ void AuthService::post(HTTPRequest *request, HTTPResponse *response) {
             return;
         }
         // creating new user
-        User* newUser = new User();
+        User *newUser = new User();
         newUser->username = username;
         newUser->password = args.get("password");
         try {
@@ -102,12 +101,19 @@ void AuthService::post(HTTPRequest *request, HTTPResponse *response) {
     }
 
     string password = args.get("password");
-    User* user = m_db->users[username];
+    User *user = m_db->users[username];
 
     if (password != user->password) {
         // password doesn't match
         response->setStatus(403);
         return;
+    }
+
+    // update user's email if passed in
+    try {
+        user->email = args.get("email");
+    } catch (...) {
+        // email arg may not exist
     }
 
     // return new auth token and user id
@@ -117,5 +123,29 @@ void AuthService::post(HTTPRequest *request, HTTPResponse *response) {
 }
 
 void AuthService::del(HTTPRequest *request, HTTPResponse *response) {
+    try {
+        User *user = getAuthenticatedUser(request);
+        // check if token is in body
+        if (request->getPathComponents().size() != 2) {
+            // token is not in body or there are more than 2 path components
+            response->setStatus(400);
+            return;
+        }
+        string auth_token_to_erase = request->getPathComponents()[1];
 
+        // check if auth tokens belong to the same user
+        if (m_db->auth_tokens[auth_token_to_erase]->user_id != user->user_id) {
+            // doesn't belong to the same user
+            response->setStatus(403);
+            return;
+        }
+        int ret = m_db->auth_tokens.erase(auth_token_to_erase);
+        if (ret == 0) {
+            // nothing was deleted, auth token not in db
+            response->setStatus(404);
+            return;
+        }
+    } catch (const ClientError &error) {
+        response->setStatus(error.status_code);
+    }
 }

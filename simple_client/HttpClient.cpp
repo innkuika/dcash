@@ -6,17 +6,17 @@
 using namespace std;
 
 HttpClient::HttpClient(const char *inetAddr, int port) {
-  connection = new MySocket(inetAddr, port);
-  
-  stringstream host;
-  host << inetAddr << ":" << port;
-  headers["Host"] = host.str();
-  headers["User-Agent"] = string("Gunrock/1.0");
-  headers["Accept"] = string("*/*");
+    connection = new MySocket(inetAddr, port);
+
+    stringstream host;
+    host << inetAddr << ":" << port;
+    headers["Host"] = host.str();
+    headers["User-Agent"] = string("Gunrock/1.0");
+    headers["Accept"] = string("*/*");
 }
 
 HttpClient::~HttpClient() {
-  delete connection;
+    delete connection;
 }
 
 void HttpClient::write_get_request(string path) {
@@ -29,16 +29,16 @@ void HttpClient::write_get_request(string path) {
   }
   request << "\r\n";
 
-  connection->write(request.str());
+    connection->write(request.str());
 }
 
 HTTPResponse *HttpClient::read_response() {
-  HTTPResponse *response = new HTTPResponse(connection);
-  response->readResponse();
-  return response;
+    HTTPResponse *response = new HTTPResponse(connection);
+    response->readResponse();
+    return response;
 }
 
 HTTPResponse *HttpClient::get(string path) {
-  write_get_request(path);
-  return read_response();
+    write_get_request(path);
+    return read_response();
 }

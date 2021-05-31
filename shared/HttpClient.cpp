@@ -2,6 +2,8 @@
 #include "HTTPClientResponse.h"
 #include "MySslSocket.h"
 #include "Base64.h"
+#include "../simple_client/include/HttpClient.h"
+
 
 #include <sstream>
 
@@ -39,8 +41,6 @@ void HttpClient::set_basic_auth(string username, string password) {
 
 void HttpClient::write_request(string path, string method, string body) {
   stringstream request;
-
-  // PART 1: implement support for handling the body, if it exists
   request << method << " " << path << " HTTP/1.1\r\n";
   if (body.size() > 0) {
     stringstream length;

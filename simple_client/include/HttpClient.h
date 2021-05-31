@@ -22,6 +22,7 @@ class HttpClient {
   ~HttpClient();
   HTTPResponse *get(std::string path);
   void write_get_request(std::string path);
+  void write_post_request(std::string path, WwwFormEncodedDict args);
   HTTPResponse *read_response();
   
  private:

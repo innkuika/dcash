@@ -11,7 +11,10 @@
 #include <fcntl.h>
 
 #include "WwwFormEncodedDict.h"
-#include "HttpClient.h"
+//#include "HttpClient.h"
+#include "../shared/include/HttpClient.h"
+#include "../shared/include/HTTPClientResponse.h"
+
 
 #include "rapidjson/document.h"
 
@@ -51,31 +54,6 @@ std::pair<int, char **> split_string(char *string_to_split) {
     return std::make_pair(i, array);
 }
 
-void makeHTTPRequest(string http_method, string url, WwwFormEncodedDict args) {
-    MySocket socket(string_to_char_array(API_SERVER_HOST), API_SERVER_PORT);
-    stringstream request;
-
-    request << http_method + " " + url + " " + "HTTP/1.1" << "\r\n";
-    request << "Host: localhost:8080" << "\r\n";
-    request << "User-Agent: GunrockClient/1.0" << "\r\n";
-    request << "Accept: */*" << "\r\n";
-    request << "Content-Length: " << args.encode().length() << "\r\n";
-    request << "Content-Type: application/x-www-form-urlencoded" << "\r\n";
-    request << "\r\n";
-    request << args.encode();
-    request << "\r\n";
-
-    socket.write(request.str());
-    try {
-        while (true) {
-            string text = socket.read();
-            cout << text;
-        }
-    } catch (...) {
-        // ignore the exception and continue executing
-    }
-}
-
 void handle_auth(int argc, char *argv[]) {
     cout << "begin handling auth..." << endl;
     if (argc != 3 && argc != 4) {
@@ -90,8 +68,22 @@ void handle_auth(int argc, char *argv[]) {
     if (argc == 4) {
         args.set("email", argv[3]);
     }
+    HttpClient *client = new HttpClient(string_to_char_array(API_SERVER_HOST), API_SERVER_PORT, false);
+    client->write_request("/auth-tokens", "POST", args.encode());
+    HTTPClientResponse *response = client->read_response();
 
-    makeHTTPRequest("POST", "/auth-tokens", args);
+    if (response->success()) {
+        // logged in, set auth token and user id
+        Document *document = response->jsonBody();
+        auth_token = document->FindMember("auth_token")->value.GetString();
+        user_id = document->FindMember("user_id")->value.GetString();
+        delete document;
+    } else {
+        // some thing went wrong
+        write_error_message();
+    }
+
+
 }
 
 void handle_command(string command) {
