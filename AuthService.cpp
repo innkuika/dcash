@@ -33,7 +33,7 @@ std::string random_string(std::size_t length) {
 }
 
 bool is_username_valid(string s) {
-    for (int i = 0; i < s.length(); ++i) {
+    for (int i = 0; i < (int) s.length(); ++i) {
         if (!islower(s[i])) {
             return false;
         }

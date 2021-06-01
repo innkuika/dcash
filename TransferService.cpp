@@ -37,8 +37,9 @@ void respond_balance_and_transfers(vector<Transfer *> transfers, int balance, st
     Value array;
     array.SetArray();
 
-    for(int i = 0; i < transfers.size(); i++) {
-        if (transfers[i]->to->username == from_username || transfers[i]->from->username == from_username) {
+    for(int i = 0; i < (int) transfers.size(); i++) {
+//        if (transfers[i]->to->username == from_username || transfers[i]->from->username == from_username) {
+        if (transfers[i]->from->username == from_username) {
             // add an object to our array
             Value to;
             to.SetObject();
@@ -49,7 +50,7 @@ void respond_balance_and_transfers(vector<Transfer *> transfers, int balance, st
         }
     }
 
-    o.AddMember("array_key", array, a);
+    o.AddMember("transfers", array, a);
     // now some rapidjson boilerplate for converting the JSON object to a string
     document.Swap(o);
     StringBuffer buffer;
@@ -80,8 +81,8 @@ void TransferService::post(HTTPRequest *request, HTTPResponse *response) {
         response->setStatus(404);
         return;
     }
-    // check if balance > amount
-    if (amount < from_user->balance) {
+    // check if user have enough money
+    if (amount > from_user->balance) {
         // doesn't have enough money
         response->setStatus(403);
         return;

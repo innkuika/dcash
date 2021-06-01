@@ -13,7 +13,7 @@ class WwwFormEncodedDict {
   std::string get(std::string key);
   void set(std::string key, std::string value);
   void set(std::string key, int value);
-  
+    bool keyExist(std::string key);
   std::string encode();
 
  protected:

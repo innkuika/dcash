@@ -55,7 +55,7 @@ std::pair<int, char **> split_string(char *string_to_split) {
 }
 
 void handle_auth(int argc, char *argv[]) {
-    cout << "begin handling auth..." << endl;
+//    cout << "begin handling auth..." << endl;
     if (argc != 3 && argc != 4) {
         // check if number of arguments is correct
         write_error_message();
@@ -93,7 +93,7 @@ void handle_command(string command) {
     char *command_option = command_array[0];
 
     if (strcmp(command_option, "auth") == 0) {
-        cout << "handling auth..." << endl;
+//        cout << "handling auth..." << endl;
         handle_auth(command_count, command_array);
 
     } else if (strcmp(command_option, "balance") == 0) {

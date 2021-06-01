@@ -28,6 +28,11 @@ WwwFormEncodedDict::WwwFormEncodedDict(string body) {
   }
 }
 
+bool WwwFormEncodedDict::keyExist(string key){
+    return m_values.count(key) == 1;
+}
+
+
 string WwwFormEncodedDict::get(string key) {
   return m_values[key];
 }

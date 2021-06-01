@@ -111,13 +111,13 @@ void AccountService::put(HTTPRequest *request, HTTPResponse *response) {
     }
 
     WwwFormEncodedDict args = request->formEncodedBody();
-    try {
-        user->email = args.get("email");
-    } catch (...) {
-        // email was not passed in
+    // check if email was passed in
+    if (!args.keyExist("email")) {
         response->setStatus(400);
         return;
     }
+
+    user->email = args.get("email");
 
     respond_email_and_balance(user->email, user->balance, 200, response);
 }
