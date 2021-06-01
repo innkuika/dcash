@@ -99,6 +99,31 @@ void make_deposit_request(string stripe_token, int amount) {
     }
 }
 
+void handle_send(int argc, char *argv[]) {
+    if (argc != 3) {
+        // check if number of arguments is correct
+        write_error_message();
+        return;
+    }
+    string to_username = argv[1];
+    double amount_double = ::atof(argv[2]);
+
+    WwwFormEncodedDict args;
+    args.set("to", to_username);
+    args.set("amount", (int) amount_double * 100);
+
+    HttpClient *client = new HttpClient(string_to_char_array(API_SERVER_HOST), API_SERVER_PORT, false);
+    client->set_header("x-auth-token", auth_token);
+    client->write_request("/transfers", "POST", args.encode());
+    HTTPClientResponse *response = client->read_response();
+
+    if (response->success()) {
+        print_user_balance();
+    } else {
+        write_error_message();
+    }
+}
+
 void handle_deposit(int argc, char *argv[]) {
     if (argc != 6) {
         // check if number of arguments is correct
@@ -144,7 +169,7 @@ void delete_auth_token(string old_auth_token) {
     HTTPClientResponse *response = client->read_response();
 
     if (!response->success()) {
-       write_error_message();
+        write_error_message();
     }
 }
 
@@ -189,7 +214,8 @@ void handle_auth(int argc, char *argv[]) {
         user_id = (*document)["user_id"].GetString();
 
         // delete old auth token
-        if (! old_auth_token.empty() && old_auth_token.find_first_not_of(' ') != std::string::npos && old_user_id != user_id){
+        if (!old_auth_token.empty() && old_auth_token.find_first_not_of(' ') != std::string::npos &&
+            old_user_id != user_id) {
             delete_auth_token(old_auth_token);
         }
 
@@ -202,8 +228,6 @@ void handle_auth(int argc, char *argv[]) {
 
         // print user balance
         print_user_balance();
-
-
     } else {
         // some thing went wrong
         write_error_message();
@@ -229,7 +253,7 @@ void handle_command(string command) {
     } else if (strcmp(command_option, "deposit") == 0) {
         handle_deposit(command_count, command_array);
     } else if (strcmp(command_option, "send") == 0) {
-        cout << "handling send..." << endl;
+        handle_send(command_count, command_array);
     } else if (strcmp(command_option, "logout") == 0) {
         delete_auth_token(auth_token);
         exit(0);
