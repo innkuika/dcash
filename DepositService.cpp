@@ -48,7 +48,7 @@ void respond_balance_and_deposits(vector<Deposit *> deposits, int balance, strin
             to.SetObject();
             to.AddMember("stripe_charge_id", deposits[i]->stripe_charge_id, a);
             to.AddMember("to", deposits[i]->to->username, a);
-            to.AddMember("amount", std::to_string(deposits[i]->amount), a);
+            to.AddMember("amount", deposits[i]->amount, a);
             array.PushBack(to, a);
         }
     }

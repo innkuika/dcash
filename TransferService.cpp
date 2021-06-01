@@ -45,7 +45,7 @@ void respond_balance_and_transfers(vector<Transfer *> transfers, int balance, st
             to.SetObject();
             to.AddMember("from", transfers[i]->from->username, a);
             to.AddMember("to", transfers[i]->to->username, a);
-            to.AddMember("amount", std::to_string(transfers[i]->amount), a);
+            to.AddMember("amount", transfers[i]->amount, a);
             array.PushBack(to, a);
         }
     }
@@ -72,6 +72,11 @@ void TransferService::post(HTTPRequest *request, HTTPResponse *response) {
     }
 
     WwwFormEncodedDict args = request->formEncodedBody();
+    // check if stripe token and amount was passed in
+    if (!args.keyExist("to") || !args.keyExist("amount")) {
+        response->setStatus(400);
+        return;
+    }
     string to_username = args.get("to");
     int amount = std::stoi(args.get("amount"));
 
@@ -89,7 +94,7 @@ void TransferService::post(HTTPRequest *request, HTTPResponse *response) {
     }
     User *to_user = m_db->users[to_username];
     from_user->balance -= amount;
-    to_user += amount;
+    to_user->balance += amount;
 
     // add this transaction to db
     Transfer *transfer = new Transfer();
