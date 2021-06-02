@@ -190,13 +190,6 @@ void handle_auth(int argc, char *argv[]) {
         return;
     }
 
-//    string username = argv[1];
-//    // check if username is valid
-//    if (!is_username_valid(username)) {
-//        write_error_message();
-//        return;
-//    }
-
     WwwFormEncodedDict args;
     args.set("username", argv[1]);
     args.set("password", argv[2]);
