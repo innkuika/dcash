@@ -30,7 +30,7 @@ string auth_token;
 string user_id;
 
 void write_error_message() {
-    char error_message[30] = "Error\n";
+    char error_message[7] = "Error\n";
     write(STDERR_FILENO, error_message, strlen(error_message));
 }
 
@@ -170,6 +170,7 @@ void delete_auth_token(string old_auth_token) {
 
     if (!response->success()) {
         write_error_message();
+        auth_token = "";
     }
 }
 
@@ -183,18 +184,18 @@ bool is_username_valid(string s) {
 }
 
 void handle_auth(int argc, char *argv[]) {
-    if (argc != 3 && argc != 4) {
+    if (argc != 4) {
         // check if number of arguments is correct
         write_error_message();
         return;
     }
 
-    string username = argv[1];
-    // check if username is valid
-    if (!is_username_valid(username)) {
-        write_error_message();
-        return;
-    }
+//    string username = argv[1];
+//    // check if username is valid
+//    if (!is_username_valid(username)) {
+//        write_error_message();
+//        return;
+//    }
 
     WwwFormEncodedDict args;
     args.set("username", argv[1]);
@@ -206,12 +207,13 @@ void handle_auth(int argc, char *argv[]) {
     if (response->success()) {
         // logged in, set auth token and user id
         Document *document = response->jsonBody();
-        // keep a copy of old user token
+        // keep a copy of old auth token old user id
         string old_auth_token = auth_token;
         string old_user_id = user_id;
 
         auth_token = (*document)["auth_token"].GetString();
         user_id = (*document)["user_id"].GetString();
+        delete document;
 
         // delete old auth token
         if (!old_auth_token.empty() && old_auth_token.find_first_not_of(' ') != std::string::npos &&
@@ -219,12 +221,8 @@ void handle_auth(int argc, char *argv[]) {
             delete_auth_token(old_auth_token);
         }
 
-        delete document;
-
-        if (argc == 4) {
-            // update user email
-            update_user_email(argv[3]);
-        }
+        // update user email
+        update_user_email(argv[3]);
 
         // print user balance
         print_user_balance();
